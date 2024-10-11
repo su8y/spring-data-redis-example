@@ -1,7 +1,11 @@
 package com.example.redisexample;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +14,14 @@ public class Example {
 
 	@Autowired
 	private RedisTemplate redisTemplate;
+	@Autowired
+	private RedisOperations<String,Integer> redisOperations;
+	@Autowired
+	private RedisScript<Boolean> script;
 
+	public void plusDataWithScript(String userId){
+		redisOperations.execute(script, List.of(userId));
+	}
 	public void plusData(String userId) {
 		Integer o = (Integer)redisTemplate.opsForValue().get(userId);
 		if (o == null) {

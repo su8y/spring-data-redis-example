@@ -47,5 +47,25 @@ class ExampleTest {
 		int count = example.getCount("bae");
 		assertEquals(THREAD_MAX, count);
 	}
+	@RepeatedTest(value = 1)
+	public void concurrencyTestWithLua() throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch(THREAD_MAX);
+
+		ExecutorService executorService = Executors.newFixedThreadPool(THREAD_MAX);
+		for (int i = 0; i < THREAD_MAX; i++) {
+			executorService.submit(()->{
+				try{
+					example.plusDataWithScript("bae");
+				}finally {
+					latch.countDown();;
+				}
+			});
+		}
+
+		latch.await();
+
+		int count = example.getCount("bae");
+		assertEquals(THREAD_MAX, count);
+	}
 
 }
