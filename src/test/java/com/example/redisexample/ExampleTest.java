@@ -2,11 +2,13 @@ package com.example.redisexample;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.annotation.Repeatable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +27,7 @@ class ExampleTest {
 
 	private final static int THREAD_MAX = 100;
 
-	@Test
+	@RepeatedTest(value = 10)
 	public void concurrencyTest() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(THREAD_MAX);
 

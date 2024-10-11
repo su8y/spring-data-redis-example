@@ -16,7 +16,8 @@ public class Example {
 		if (o == null) {
 			redisTemplate.opsForValue().set(userId, 0);
 		}
-		redisTemplate.opsForValue().set(userId, o + 1);
+		// redisTemplate.opsForValue().set(userId, o + 1); // 원자적 연산 X
+		redisTemplate.opsForValue().increment(userId); // 원자적 연산 O
 	}
 
 	public Integer getCount(String userId) {
