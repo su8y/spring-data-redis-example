@@ -1,18 +1,25 @@
 package com.example.redisexample;
 
-import java.net.URL;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class Example {
 
 	@Autowired
-	private RedisTemplate<String,String> redisTemplate;
+	private RedisTemplate redisTemplate;
 
-	public void addLink(String userId, String url){
-		redisTemplate.opsForList().leftPush(userId, url);
+	public void plusData(String userId) {
+		Integer o = (Integer)redisTemplate.opsForValue().get(userId);
+		if (o == null) {
+			redisTemplate.opsForValue().set(userId, 0);
+		}
+		redisTemplate.opsForValue().set(userId, o + 1);
+	}
+
+	public Integer getCount(String userId) {
+		return (Integer)redisTemplate.opsForValue().get(userId);
 	}
 }

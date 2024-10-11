@@ -2,28 +2,48 @@ package com.example.redisexample;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.net.MalformedURLException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class ExampleTest {
 	@Autowired
 	private Example example;
 
 	@Autowired
-	private RedisTemplate redisTemplate;
+	private RedisTemplate<?, ?> redisTemplate;
+
+
+	private final static int THREAD_MAX = 100;
 
 	@Test
-	public void test() {
-		example.addLink("bae", "127.0.0.1");
+	public void concurrencyTest() throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch(THREAD_MAX);
 
-		Object base = redisTemplate.opsForValue().get("bae");
+		ExecutorService executorService = Executors.newFixedThreadPool(THREAD_MAX);
+		for (int i = 0; i < THREAD_MAX; i++) {
+			executorService.submit(()->{
+				try{
+					example.plusData("bae");
+				}finally {
+					latch.countDown();;
+				}
+			});
+		}
 
-		assertEquals((String)base, "127.0.0.1");
+		latch.await();
+
+		int count = example.getCount("bae");
+		assertEquals(THREAD_MAX, count);
 	}
 
 }
